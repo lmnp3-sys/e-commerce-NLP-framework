@@ -2,10 +2,10 @@
 DS3500 HW7 NLP Framework
 Application File
 Wayfair Furniture: Product Descriptions vs Customer Reviews
+Team members: Jiayu Zou, Le Pham, PP
 """
 
 from furnitureseepage import Furnitureseepage
-
 
 def main():
     fs = Furnitureseepage()
@@ -37,22 +37,22 @@ def main():
         fs.load_text(filename, label)
 
     # Text statistics summary
-    print("<<-- TEXT SUMMARY (after stopword removal) -->>")
+    print("<<=== TEXT SUMMARY (after stopword removal) ===>>")
     for label, info in fs.data.items():
         print(f"{label}: {info['word_count']} tokens")
 
-    print("\n<<-- TOP 5 WORDS PER TEXT -->>")
+    print("\n<<=== TOP 5 WORDS PER TEXT ===>>")
     for label, info in fs.data.items():
         top_5 = info["word_freq"].most_common(5)
         print(f"{label}: {top_5}")
 
     # Visualizations required by the assignment
-    print("\nGenerating visualizations...")
+    print("\nGenerating visualizations now...")
 
-    # 1) Text → Word Sankey diagram
+    # 1) Text -> Word Sankey diagram
     fs.wordcount_sankey(k=5)
 
-    # 2) Grid of subplots (one per text)
+    # 2) One big plot with subplots inside (one per text)
     fs.wordfreq_subplots(top_n=10)
 
     # 3) Overlay rank–frequency plot
