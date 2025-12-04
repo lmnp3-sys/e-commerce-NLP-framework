@@ -1,20 +1,14 @@
 """
-Le Pham
-DS3500
-Prof.Rachlin
-HW 7 - NLP Framework
-"""
-"""
 DS3500  HW 7: NLP Framework
+Team members: Jiayu Zou, Le Pham, PP
 Comparing Wayfair furniture product descriptions vs customer reviews
 """
 
 import string
-import math
 from collections import Counter
+from matplotlib.pyplot import MaxNLocator
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 
 try:
     import plotly.graph_objects as go  # for Sankey diagrams
@@ -36,7 +30,7 @@ class Furnitureseepage:
         self.data = {}
         self.stopwords = set()
 
-    # -------- Default Preprocessing --------
+    # ======= Default Preprocessing =======
     @staticmethod
     def default_parser(raw_text: str) -> str:
         """
@@ -59,14 +53,14 @@ class Furnitureseepage:
             self.stopwords = {w.strip().lower() for w in f if w.strip()}
         print(f"Loaded {len(self.stopwords)} stop words.")
 
-    # -------- Load & Process Text --------
+    # ======= Load & Process Text =======
     def load_text(self, filename: str, label: str, parser=None):
         """
         Load and preprocess a text file.
 
         Two modes:
-        1) parser=None → use default_parser; file is read inside the framework.
-        2) parser=function → parser(filename) should return a dict containing:
+        1) parser=None -> use default_parser; file is read inside the framework.
+        2) parser=function -> parser(filename) should return a dict containing:
              { "clean_text": "...", ... }
            extra fields will be stored in the data structure.
         """
@@ -77,14 +71,14 @@ class Furnitureseepage:
             clean_text = self.default_parser(raw_text)
             extra = {}
         else:
-            # Custom parser mode
+            # Custom parser mode | parser=function
             parsed = parser(filename)
             if not isinstance(parsed, dict) or "clean_text" not in parsed:
                 raise ValueError("Custom parser must return a dict containing 'clean_text'.")
             clean_text = parsed["clean_text"]
             extra = {k: v for k, v in parsed.items() if k != "clean_text"}
 
-        # Tokenization
+        # Tokenization | individual pieces of text after preprocessing
         tokens = clean_text.split()
 
         # Remove stopwords if available
@@ -112,21 +106,21 @@ class Furnitureseepage:
 
         return self.data[label]
 
-    # -------- Visualization 1: Sankey Diagram --------
+    # ======= Visualization 1: Sankey Diagram =======
     def wordcount_sankey(self, word_list=None, k=5):
         """
         Required Visualization #1:
-        Text → Word Sankey diagram.
-        
+        Text -> Word Sankey diagram.
+
         word_list:
             - If None: use the union of top-k frequent words from each text.
             - Otherwise: visualize only the words provided.
         """
         if not HAS_PLOTLY:
-            raise ImportError("Plotly is required for Sankey diagrams. Install via: pip install plotly")
+            raise ImportError("Attention! Plotly is required for Sankey diagrams. Install via: pip install plotly")
 
         if not self.data:
-            raise ValueError("No texts loaded. Use load_text() first.")
+            raise ValueError("Attention! No texts loaded. Use load_text() first.")
 
         # Determine which words to include
         if word_list is None:
@@ -148,7 +142,7 @@ class Furnitureseepage:
 
         sources, targets, values = [], [], []
 
-        # Build links from text → word
+        # Build links from text -> word
         for tlabel, info in self.data.items():
             freq = info["word_freq"]
             for w in words:
@@ -159,7 +153,7 @@ class Furnitureseepage:
                     values.append(count)
 
         if not values:
-            raise ValueError("No overlapping words found for Sankey diagram.")
+            raise ValueError("Attention! No overlapping words found for Sankey diagram.")
 
         fig = go.Figure(
             data=[
@@ -181,7 +175,7 @@ class Furnitureseepage:
         fig.update_layout(title_text="Text-to-Word Sankey Diagram", font_size=10)
         fig.show()
 
-    # -------- Visualization 2: One Subplot per Text --------
+    # ======= Visualization 2: One Subplot per Text =======
     def wordfreq_subplots(self, top_n=10):
         """
         Required Visualization #2:
@@ -189,41 +183,51 @@ class Furnitureseepage:
         for each text file.
         """
         if not self.data:
-            raise ValueError("No texts loaded.")
+            raise ValueError("Attention! No texts loaded.")
 
         labels = list(self.data.keys())
         n = len(labels)
 
         cols = 2
-        rows = math.ceil(n / cols)
+        rows = n // cols
+        if n % cols != 0: # if odd number, add extra row
+            rows += 1
 
-        fig, axes = plt.subplots(rows, cols, figsize=(12, 3 * rows))
+        # Create subplots
+        fig, axes = plt.subplots(rows, cols, figsize=(16, 4 * rows)) # 4in/row
 
         if isinstance(axes, plt.Axes):
             axes = [axes]
         else:
-            axes = axes.flatten()
+            axes = axes.flatten() # make it a flat list
 
-        for ax, label in zip(axes, labels):
-            freq = self.data[label]["word_freq"]
+        # plot each text
+        for i, label in enumerate(labels):
+            freq = self.data[label]['word_freq']
             top_items = freq.most_common(top_n)
-            if not top_items:
-                ax.set_title(f"{label} (no tokens)")
-                continue
 
-            words, counts = zip(*top_items)
-            ax.bar(words, counts)
-            ax.set_title(label)
-            plt.setp(ax.get_xticklabels(), rotation=45, ha="right")
-            ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+            # get words and counts
+            words = []
+            counts = []
+            for word, count in top_items:
+                words.append(word)
+                counts.append(count)
 
-        for ax in axes[len(labels):]:
-            ax.axis("off")
+            # create bar chart
+            axes[i].bar(words, counts)
+            axes[i].set_title(label)
+            axes[i].tick_params(axis='x', labelsize=8, rotation=45)
+            axes[i].yaxis.set_major_locator(MaxNLocator(integer=True)) # instead of 1.5, 2,5, 3.5 -> 1, 2, 3
 
-        fig.tight_layout()
+        # hide extra subplots
+        for i in range(len(labels), len(axes)):
+            axes[i].axis('off')
+
+        plt.subplots_adjust(hspace=0.4, wspace=0.3)
+        plt.tight_layout()
         plt.show()
 
-    # -------- Visualization 3: Overlay Rank–Frequency Plot --------
+    # ======= Visualization 3: Overlay Rank–Frequency Plot =======
     def rank_frequency_overlay(self, max_rank=50):
         """
         Required Visualization #3:
@@ -231,7 +235,7 @@ class Furnitureseepage:
         for all texts, enabling direct comparison.
         """
         if not self.data:
-            raise ValueError("No texts loaded.")
+            raise ValueError("Attention! No texts loaded.")
 
         plt.figure(figsize=(8, 6))
 
