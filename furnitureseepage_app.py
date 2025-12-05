@@ -2,7 +2,7 @@
 DS3500 HW7 NLP Framework
 Application File
 Wayfair Furniture: Product Descriptions vs Customer Reviews
-Team members: Jiayu Zou, Le Pham, PP
+Team members: Jiayu Zou, Le Pham, Yuwen Pan
 """
 
 from furnitureseepage import Furnitureseepage
@@ -53,7 +53,7 @@ def main():
     fs.wordcount_sankey(k=5)
 
     # 2) One big plot with subplots inside (one per text)
-    fs.wordfreq_subplots(top_n=10)
+    fs.wordfreq_subplots(top_n=7)
 
     # 3) Overlay rank–frequency plot
     fs.rank_frequency_overlay(max_rank=50)
