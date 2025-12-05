@@ -1,4 +1,8 @@
 """
+DS3500 HW 7: NLP Framework
+Team members: Jiayu Zou, Le Pham, Yuwen Pan
+Comparing Wayfair furniture product descriptions vs customer reviews
+
 An example of a custom domain-specific parser
 """
 import string
@@ -23,3 +27,4 @@ def text_parser(filename):
             'numwords': num_words,
             'raw_text': raw_text,
             'clean_text': text}
+
