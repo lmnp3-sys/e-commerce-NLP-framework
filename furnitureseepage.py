@@ -1,6 +1,6 @@
 """
-DS3500  HW 7: NLP Framework
-Team members: Jiayu Zou, Le Pham, PP
+DS3500 HW 7: NLP Framework
+Team members: Jiayu Zou, Le Pham, Yuwen Pan
 Comparing Wayfair furniture product descriptions vs customer reviews
 """
 
@@ -176,7 +176,7 @@ class Furnitureseepage:
         fig.show()
 
     # ======= Visualization 2: One Subplot per Text =======
-    def wordfreq_subplots(self, top_n=10):
+    def wordfreq_subplots(self, top_n=7):
         """
         Required Visualization #2:
         A grid of subplots, each showing the top-N most frequent words
@@ -194,7 +194,7 @@ class Furnitureseepage:
             rows += 1
 
         # Create subplots
-        fig, axes = plt.subplots(rows, cols, figsize=(16, 4 * rows)) # 4in/row
+        fig, axes = plt.subplots(rows, cols, figsize=(26, 7 * rows)) # 4in/row
 
         if isinstance(axes, plt.Axes):
             axes = [axes]
@@ -215,16 +215,19 @@ class Furnitureseepage:
 
             # create bar chart
             axes[i].bar(words, counts)
-            axes[i].set_title(label)
-            axes[i].tick_params(axis='x', labelsize=8, rotation=45)
+            axes[i].set_title(label, fontsize=12)
+
+            axes[i].set_xticks(range(len(words)))
+            axes[i].set_xticklabels(words, rotation=0, fontsize=9)
             axes[i].yaxis.set_major_locator(MaxNLocator(integer=True)) # instead of 1.5, 2,5, 3.5 -> 1, 2, 3
+
+            axes[i].margins(x=0.08)
 
         # hide extra subplots
         for i in range(len(labels), len(axes)):
             axes[i].axis('off')
 
-        plt.subplots_adjust(hspace=0.4, wspace=0.3)
-        plt.tight_layout()
+        plt.subplots_adjust(hspace=0.9, wspace=0.35, bottom=0.08, top=0.96, left=0.05, right=0.97)
         plt.show()
 
     # ======= Visualization 3: Overlay Rank–Frequency Plot =======
